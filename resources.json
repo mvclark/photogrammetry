@@ -1,3 +1,4 @@
 [
-	"main.coffee"
+    "main.coffee",
+    "data.coffee"
 ]

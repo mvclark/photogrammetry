@@ -97,7 +97,10 @@ class Image
         pos ?= {x:0, y:0}
         rng ?= {dx:@w, dy:@h}
         @context?.getImageData(pos.x, pos.y, rng.dx, rng.dy)
-        
+
+    putImageData: (newData) -> #!!!
+        @context?.putImageData(imageData, 0, 0);
+
     highlight: (e, highlight=true) ->
         e.preventDefault()
         method = if highlight then "addClass" else "removeClass"
@@ -114,12 +117,28 @@ class Demo
         click = (@data) => @showData @clicked, "Clicked coord: ", @data
         mouseenter = => @current.show()
         mouseleave = => @current.hide()
-        image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
-        image.set("./Lenna.png")
-        console.log "imageData?", image.imageData()
+        #$blab.image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
+        #$blab.image.set("./Lenna.png")
+        $blab.image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
+        $blab.image.set("./Lenna.png")
 
     loaded: (image) ->
-        console.log "Image loaded", image
+
+        ###
+        imageData = $blab.image.context.getImageData(0, 0, 512, 512)
+
+        d = imageData.data
+
+        f = (n, del) ->
+            d[i] += del for i in [n..n+2]
+
+        f(k, -60) for k in [0...d.length] by 4
+
+        $blab.image.context.putImageData(imageData, 0, 0);
+        ###
+
+        console.log "image loaded", image
+        $blab.ctx = image.context
         
     showData: (el, txt, data) ->
         pos = data.pos
@@ -135,4 +154,5 @@ class Demo
         
     rgbToHex: (r, g, b) -> ((r << 16) | (g << 8) | b).toString(16)
     
-new Demo
+$blab.demo = new Demo
+

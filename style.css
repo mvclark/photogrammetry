@@ -112,3 +112,16 @@ figcaption {
     text-align: center;
 }
 
+.left_col {
+    float: left;
+    width: 450px;
+}
+
+.right_col {
+    float: right;
+    width: 450px;
+}
+
+.clear {
+    clear: both;
+}
