@@ -92,18 +92,18 @@ class Image
         round = Math.round
         x: round(e.clientX - rect.left)
         y: round(e.clientY - rect.top)
-        
+
     imageData: (pos, rng) ->
         pos ?= {x:0, y:0}
         rng ?= {dx:@w, dy:@h}
         @context?.getImageData(pos.x, pos.y, rng.dx, rng.dy)
+        
+    getPixels: ->
+        @imageData().data
 
-    putImageData: (newData) -> 
-        imageData = @context?.getImageData(0, 0, 512, 512)
+    putPixels: (newData) ->
+        imageData = @context?.getImageData(0, 0, @w, @h)
         imageData.data[k] = newData[k] for k in [0...newData.length]
-        #imageData.data = (data for data in newData)
-        #imageData.data = newData.slice(0)
-        #console.log "?????", imageData.data[0], newData.slice(0)
         @context?.putImageData(imageData, 0, 0);
 
     highlight: (e, highlight=true) ->
@@ -122,28 +122,11 @@ class Demo
         click = (@data) => @showData @clicked, "Clicked coord: ", @data
         mouseenter = => @current.show()
         mouseleave = => @current.hide()
-        #$blab.image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
-        #$blab.image.set("./Lenna.png")
-        $blab.image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
-        $blab.image.set("./Lenna.png")
+        image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
+        image.set("./Lenna.png")
 
     loaded: (image) ->
-
-        ###
-        imageData = $blab.image.context.getImageData(0, 0, 512, 512)
-
-        d = imageData.data
-
-        f = (n, del) ->
-            d[i] += del for i in [n..n+2]
-
-        f(k, -60) for k in [0...d.length] by 4
-
-        $blab.image.context.putImageData(imageData, 0, 0);
-        ###
-
-        console.log "image loaded", image
-        $blab.ctx = image.context
+        $blab.image = image
         
     showData: (el, txt, data) ->
         pos = data.pos
