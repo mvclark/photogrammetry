@@ -7,6 +7,6 @@ f = (n, del) ->
 
 f(k, -60) for k in [0...d.length] by 4
 
-$blab.ctx.putImageData(imageData, 0, 0);
+#$blab.ctx.putImageData(imageData, 0, 0);
 
-
+$blab.image.putImageData(d)
