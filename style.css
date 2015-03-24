@@ -125,3 +125,9 @@ figcaption {
 .clear {
     clear: both;
 }
+
+.text {
+    width: 960px;
+    margin: 0 auto;
+    margin-bottom: 0px;
+}
