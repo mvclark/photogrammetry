@@ -1,12 +1,21 @@
-imageData = $blab.ctx.getImageData(0, 0, 512, 512) #;
+#!vanilla
 
-d = imageData.data
+# retrieve image pixels
+pix = $blab.image.getPixels() #;
 
-f = (n, del) ->
-    d[i] += del for i in [n..n+2]
+# brightness change
+del = 60 
 
-f(k, -60) for k in [0...d.length] by 4
+# brighten filter
+brighten = (n) ->
+    pix[i] += del for i in [n..n+2]
 
-#$blab.ctx.putImageData(imageData, 0, 0);
+# runner
+filter = (f) ->
+    f(k) for k in [0...pix.length] by 4
 
-$blab.image.putImageData(d)
+# apply filter
+filter brighten #;
+
+# insert pixels
+$blab.image.putPixels(pix)
