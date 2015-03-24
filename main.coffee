@@ -98,10 +98,10 @@ class Image
         rng ?= {dx:@w, dy:@h}
         @context?.getImageData(pos.x, pos.y, rng.dx, rng.dy)
 
-    putImageData: (newData) -> #!!!
+    putImageData: (newData) -> 
         imageData = @context?.getImageData(0, 0, 512, 512)
         imageData.data[k] = newData[k] for k in [0...newData.length]
-        imageData.data = (data for data in newData)
+        #imageData.data = (data for data in newData)
         #imageData.data = newData.slice(0)
         #console.log "?????", imageData.data[0], newData.slice(0)
         @context?.putImageData(imageData, 0, 0);
