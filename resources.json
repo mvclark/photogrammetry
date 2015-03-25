@@ -1,4 +1,6 @@
 [
+    "http://puzlet.org/puzlet/js/d3.min.js",
     "main.coffee",
-    "data.coffee"
+    "data.coffee",
+    "measure.coffee"
 ]

@@ -9,28 +9,37 @@
     
   <body>
 
-    <div id='container'>
-      <figure>
-        <div id="image"></div>
-        <figcaption>Drop an image here.</figcaption>
-      </figure>
-      <div class="image-data" id="image-data-current"></div>
-      <div class="image-data" id="image-data-click"></div>
-    </div> <!--container-->
-  
-    <div  class="text">
+    <div class="text">
 
-      <div class="left_col">
-	<div data-file="data.coffee"></div>
-      </div>    
+      <div id="analyze" style="position:relative;">
 
-      <div class="right_col">
-	<div data-eval="data.coffee"></div>
+	<div id="plot"></div>
+        <div id="image" style="position:absolute;"></div>
+	<div class="image-data" id="image-data-current"></div>
+	<div class="image-data" id="image-data-click"></div>
+
+      </div>
+
+      <div style="position:relative;">
+
+	<div class="left_col">
+	  <div data-file="data.coffee"></div>
+	</div>    
+
+	<div class="right_col">
+	  <div data-eval="data.coffee"></div>
+	</div>
+
       </div>
 
     </div>
 
-    <script>blabBasic=true;</script>
+    <div class="clear">
+
+      <div id="equation"></div>
+      <div id="guide"></div>
+
+      <script>blabBasic=true;</script>
     <script src="http://puzlet.org/puzlet/js/puzlet.js"></script>
         
   </body>
