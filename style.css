@@ -114,52 +114,33 @@ figcaption {
     text-align: center;
 }
 
-.left_col {
-    float: left;
-    width: 450px;
-}
-
-.right_col {
-    float: right;
-    width: 450px;
-}
-
-.clear {
-    clear: both;
-}
-
-.text {
-    width: 960px;
-    margin: 0 auto;
-    margin-bottom: 0px;
-}
-
-
 #analyze {
     position: relative;
     margin: 0 auto;
+    width: 800px;
+    height: 600px;
+    background: green;
 }
 
+.overlay {
+    position: absolute;
+    width: 600px;
+    left: 50%;
+    margin-left: -300px;
+    z-index: 0;
+}
 
 #plot {
-    position: absolute;
-    left: 0;
-    top:  0;
-    margin: 0 auto;
-    z-index: 0;
+    z-index: 20;
 }
 
 #image {
-    position: absolute;
-    left: 0;
-    top:  0;
-    margin: 0 auto;
-    z-index: 0;
+    top: 50px;
 }
 
 
 #guide {
-    position: absolute;
+    /*position: absolute;*/
     left: 0;
     top:  0;
     margin: 0 auto;
@@ -167,7 +148,7 @@ figcaption {
 }
 
 #equation {
-    position: absolute;
+    /*position: absolute;*/
     left: 30px;
     top: 0;
     margin: 0 auto;
@@ -200,9 +181,4 @@ figcaption {
 
 .foot .puzlet-link { float:left }
 .foot .org-link { float:right }
-
-
-
-
-
 

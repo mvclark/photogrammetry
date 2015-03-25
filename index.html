@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang='en'>
-    
+  
   <head>
     <meta charset='utf-8'>
     <title>Photogrammetry</title>
     <link rel='stylesheet' href='style.css'>
   </head>
-    
+  
   <body>
-
-    <div class="text">
-
-      <div id="analyze" style="position:relative;">
-
-	<div id="plot"></div>
-        <div id="image" style="position:absolute;"></div>
-	<div class="image-data" id="image-data-current"></div>
-	<div class="image-data" id="image-data-click"></div>
-
+    
+    <div id="container">
+      
+      <div id="analyze">
+        <div class="overlay" id="plot"></div>
+        <div class="overlay" id="image"></div>
       </div>
-
-      <div style="position:relative;">
-
-	<div class="left_col">
-	  <div data-file="data.coffee"></div>
-	</div>    
-
-	<div class="right_col">
-	  <div data-eval="data.coffee"></div>
-	</div>
-
+      <div class="image-data" id="image-data-current"></div>
+      <div class="image-data" id="image-data-click"></div>
+      
+      <div class="left-col">
+        <div data-file="data.coffee"></div>
       </div>
-
-    </div>
-
-    <div class="clear">
-
+      
+      <div class="right-col">
+        <div data-eval="data.coffee"></div>
+      </div>
+      
+      <div class="clear"></div>
+      
       <div id="equation"></div>
       <div id="guide"></div>
-
-      <script>blabBasic=true;</script>
+      
+    </div>
+    
+    <script>blabBasic=true;</script>
     <script src="http://puzlet.org/puzlet/js/puzlet.js"></script>
-        
+    
   </body>
   
 </html>
