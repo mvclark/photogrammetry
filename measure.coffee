@@ -115,6 +115,7 @@ class $blab.Plot extends d3Object
 class $blab.Guide extends d3Object
 
     r: 10 # circle radius
+    tId: null
     
     constructor: (@w, @h)->
 
@@ -251,7 +252,7 @@ class $blab.Guide extends d3Object
             )
         
     dragMarker: (marker, x, y) ->
-
+        
         x=0 if x<0
         x=@w if x>@w
         y=0 if y<0
@@ -259,7 +260,7 @@ class $blab.Guide extends d3Object
 
         marker.attr("cx", x)
         marker.attr("cy", y)
-
+        
         X1 = +@m1.attr("cx")
         Y1 = +@m1.attr("cy")
         X2 = +@m2.attr("cx")
@@ -269,32 +270,41 @@ class $blab.Guide extends d3Object
             .attr("y1", Y1)
             .attr("x2", X2)
             .attr("y2", Y2)
-
+        
         y1 = @Y2y Y1
         y2 = @Y2y Y2
         x1 = @X2x X1
         x2 = @X2x X2
-
+        
         #slope = (y2-y1)/(x2-x1)
         #inter = y1-slope*x1
         #d3.select("#equation").html(model_text([inter, slope]))
+        
+            
+        if @tId
+            clearTimeout @tId
+            @tId = null
+            
+        @tId = setTimeout (=>
+            
+            r = [0..100]/100
+            Xq = (Math.round u for u in (X1 + (X2-X1)*r))
+            Yq = (Math.round u for u in (Y1 + (Y2-Y1)*r))
 
-        r = [0..100]/100
-        Xq = (Math.round u for u in (X1 + (X2-X1)*r))
-        Yq = (Math.round u for u in (Y1 + (Y2-Y1)*r))
+            intensity = (clr, idx) ->
+                $blab.image.mouseData({x:Xq[idx], y:Yq[idx]}).color[clr]/255
 
-        intensity = (clr, idx) ->
-            $blab.image.mouseData({x:Xq[idx], y:Yq[idx]}).color[clr]/255
+            color = (u) ->
+                 ({interval:r[i], intensity:intensity(u, i)} for i in [0...r.length])
+            
+            data =
+                red: color("r")
+                blue: color("b")
+                green: color("g")
+            $blab.plot.update(data)
+        ), 50
+        
 
-        color = (u) ->
-             ({interval:r[i], intensity:intensity(u, i)} for i in [0...r.length])
-
-        data =
-            red: color("r")
-            blue: color("b")
-            green: color("g")
-
-        $blab.plot.update(data)
 
 
     model_text = (p) ->
