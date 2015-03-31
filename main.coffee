@@ -12,10 +12,15 @@ class Image
         @imageContainer = $ "<div>",
             class: @imageContainerClass
             text: "Drop an image here."
-            mouseenter: (e) => @mouseenter(e)
-            mouseleave: (e) => @mouseleave(e)
+            #mouseenter: (e) => @mouseenter(e)
+            #mouseleave: (e) => @mouseleave(e)
         
-        @imageContainer
+        @dropTarget = $("#guide")
+        
+        @dropTarget.mouseenter (e) => @mouseenter(e)
+        @dropTarget.mouseleave (e) => @mouseleave(e)
+        
+        @dropTarget
             .on('dragenter', (e) => @highlight e)
             .on('dragexit', (e) => @highlight e, false)
             .on('dragover', (e) => e.preventDefault())
@@ -128,9 +133,10 @@ class Demo
         image.set("SMPTE_Color_Bars.png")
 
     loaded: (image) ->
+        console.log "LOADED"
         $blab.image = image
         guide = new $blab.Guide image.w, image.h
-        $blab.plot = new $blab.Plot image.w, image.h        
+        $blab.plot = new $blab.Plot image.w, image.h
 
         #guide.dragMarker(guide.m1, 0, 0)
         

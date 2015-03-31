@@ -13,30 +13,30 @@ class d3Object
 
         
 class $blab.Plot extends d3Object
-
+  
     constructor: (@w, @h) ->
-
+        
         super "plot"
-
+        
         @obj.attr('width', @w).attr('height', @h)
-
+        
         @plot = @obj.append('g')
             .attr("transform", "translate( #{0}, #{0})")
             .attr('width', @w)
             .attr('height', @h)
-
+            
         @plot.append("g")
             .attr("id","x-axis")
             .attr("class", "x axis")
             .attr("transform", "translate(0, #{@h})")
             .call(@xAxis)
-
+            
         @plot.append("g")
             .attr("id","y-axis")
             .attr("class", "y axis")
             .attr("transform", "translate(0, 0)")
             .call(@yAxis)
-
+            
         @plot.selectAll("line.horizontalGrid")
             .data(@y2Y.ticks(9))
             .enter()
@@ -46,7 +46,7 @@ class $blab.Plot extends d3Object
             .attr("x2", @w)
             .attr("y1", (d) => @y2Y d)
             .attr("y2", (d) => @y2Y d)
-
+            
         @plot.selectAll("line.verticalGrid")
             .data(@x2X.ticks(9))
             .enter()
@@ -56,7 +56,7 @@ class $blab.Plot extends d3Object
             .attr("y2", @h)
             .attr("x1", (d) => @x2X d)
             .attr("x2", (d) => @x2X d)
-
+            
         @plot.append("text")
             .attr("class", "y label")
             .attr("text-anchor", "end")
@@ -64,18 +64,18 @@ class $blab.Plot extends d3Object
             .attr("dx", -90)
             .attr("transform", "rotate(-90)")
             .text("Intensity")
-
+            
         @plot.append("text")
             .attr("class", "x label")
             .attr("text-anchor", "end")
             .attr("dy", @h+50)
             .attr("dx", 220)
             .text("Distance (?)")
-
+            
         @line = d3.svg.line()
             .x((d) => @x2X d.interval)
             .y((d) =>  @y2Y d.intensity)
-
+            
     update: (data) ->
         console.log "update!!!"
         @plotLine = (u) =>
@@ -84,18 +84,18 @@ class $blab.Plot extends d3Object
                 .attr("d", @line data[u])
                 .attr("stroke-width", 2)
                 .attr("stroke", u)
-
+                
         @plot.selectAll("path").remove()
         ["red", "blue", "green"].forEach(@plotLine)
-
+        
     initAxes: ->
-
+        
         # x <-> pixels
         @x2X = d3.scale.linear()
             .domain([0, 1])
             .range([0, @w])
         @X2x = @x2X.invert
-
+        
         # y <-> pixels
         @y2Y = d3.scale.linear()
             .domain([0, 1])
@@ -106,14 +106,15 @@ class $blab.Plot extends d3Object
             .scale(@x2X)
             .orient("bottom")
             .ticks(6)
-
+            
         @yAxis = d3.svg.axis()
             .scale(@y2Y)
             .orient("left")
 
+
 class $blab.Guide extends d3Object
 
-    r = 10 # circle radius
+    r: 10 # circle radius
     
     constructor: (@w, @h)->
 
@@ -236,9 +237,8 @@ class $blab.Guide extends d3Object
             .orient("left")
         
     marker: () ->
-
         m = @region.append('circle')
-            .attr('r', r)
+            .attr('r', @r)
             .attr("class", "modelcircle")
             .call(
                 d3.behavior
