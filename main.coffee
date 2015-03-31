@@ -61,6 +61,14 @@ class Image
         @w = @image.width()
         @h = @image.height()
         
+        console.log "width", @w
+        $(".temp").css
+          width: @w + "px"
+          marginLeft: -@w/2 + "px"
+          
+        $("#analyze").height @h+50
+        #$("#plot-outer").height 300
+        
         @imageContainer.width(@w).height(@h)
         
         @canvas = $("<canvas>")
@@ -126,11 +134,14 @@ class Demo
         @clicked = $("#image-data-click")
         loaded = (image) => @loaded image
         mousemove = (data) => @showData @current, "Current coord: ", data
-        click = (@data) => @showData @clicked, "Clicked coord: ", @data
-        mouseenter = => @current.show()
-        mouseleave = => @current.hide()
+        click = (@data) => #@showData @clicked, "Clicked coord: ", @data
+        mouseenter = => #@current.show()
+        mouseleave = => @showData @current #@current.hide()
         image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
         image.set("SMPTE_Color_Bars.png")
+        #@current.html "&nbsp;"
+        @showData @current
+        @current.show()
 
     loaded: (image) ->
         console.log "LOADED"
@@ -141,6 +152,9 @@ class Demo
         #guide.dragMarker(guide.m1, 0, 0)
         
     showData: (el, txt, data) ->
+        unless data
+          el.html "&nbsp;"
+          return
         pos = data.pos
         color = @getColor data
         el.html "#{txt}(#{pos.x}, #{pos.y}) #{color}"

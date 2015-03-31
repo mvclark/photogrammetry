@@ -1,3 +1,4 @@
+#!vanilla
 
 class d3Object
 
@@ -17,6 +18,13 @@ class $blab.Plot extends d3Object
     constructor: (@w, @h) ->
         
         super "plot"
+        
+        console.log "w/h", @w, @h
+                
+        #$("#plot-outer").width @w
+        $("#plot").width @w
+        $("#plot").css marginLeft: -@w/2
+        $("#plot").height @h
         
         @obj.attr('width', @w).attr('height', @h)
         
@@ -116,6 +124,7 @@ class $blab.Guide extends d3Object
 
     r: 10 # circle radius
     tId: null
+    computing: false
     
     constructor: (@w, @h)->
 
@@ -131,6 +140,7 @@ class $blab.Guide extends d3Object
             .attr("transform", "translate( #{0}, #{0})")
             .attr('width', @w)
             .attr('height', @h)
+            .attr('class', 'unselectable')
 
         @region.append("g")
             .attr("id","x-axis")
@@ -201,17 +211,22 @@ class $blab.Guide extends d3Object
         @m2 = @marker()
             .attr("cx", @x2X x2)
             .attr("cy", @y2Y y2)
-
+        
         @line = @region.append("line")
             .attr("x1", @m1.attr("cx"))
             .attr("y1", @m1.attr("cy"))
             .attr("x2", @m2.attr("cx"))
             .attr("y2", @m2.attr("cy"))
             .attr("class", "modelline")
-
+                
+        # TODO: coord setting code above redundant
+        @compFromMarkers()
+        
         #slope = (y2-y1)/(x2-x1)
         #inter = y1-slope*x1
         #d3.select("#equation").html(model_text([inter, slope]))
+        
+        @steps = (x/100 for x in [0..100])
 
     initAxes: ->
 
@@ -250,16 +265,20 @@ class $blab.Guide extends d3Object
                 )
                 .on("drag", => @dragMarker(m, d3.event.x, d3.event.y))
             )
-        
+            
     dragMarker: (marker, x, y) ->
         
         x=0 if x<0
         x=@w if x>@w
         y=0 if y<0
         y=@h if y>@h
-
+        
         marker.attr("cx", x)
         marker.attr("cy", y)
+        
+        @compFromMarkers()
+        
+    compFromMarkers: ->
         
         X1 = +@m1.attr("cx")
         Y1 = +@m1.attr("cy")
@@ -271,41 +290,47 @@ class $blab.Guide extends d3Object
             .attr("x2", X2)
             .attr("y2", Y2)
         
-        y1 = @Y2y Y1
-        y2 = @Y2y Y2
-        x1 = @X2x X1
-        x2 = @X2x X2
-        
         #slope = (y2-y1)/(x2-x1)
         #inter = y1-slope*x1
         #d3.select("#equation").html(model_text([inter, slope]))
         
-            
         if @tId
             clearTimeout @tId
             @tId = null
             
-        @tId = setTimeout (=>
-            
-            r = [0..100]/100
-            Xq = (Math.round u for u in (X1 + (X2-X1)*r))
-            Yq = (Math.round u for u in (Y1 + (Y2-Y1)*r))
-
-            intensity = (clr, idx) ->
-                $blab.image.mouseData({x:Xq[idx], y:Yq[idx]}).color[clr]/255
-
-            color = (u) ->
-                 ({interval:r[i], intensity:intensity(u, i)} for i in [0...r.length])
-            
-            data =
-                red: color("r")
-                blue: color("b")
-                green: color("g")
-            $blab.plot.update(data)
-        ), 50
+        unless @computing
+            @tId = setTimeout (=> @computeColor(X1, Y1, X2, Y2)), 50
         
-
-
+    
+    computeColor: (X1, Y1, X2, Y2) =>
+        
+        @computing = true
+        console.log "COMPUTING..."
+        
+        # Unused
+#        y1 = @Y2y Y1
+#        y2 = @Y2y Y2
+#        x1 = @X2x X1
+#        x2 = @X2x X2
+        
+        Xq = (Math.round(X1 + (X2-X1)*ri) for ri in @steps)
+        Yq = (Math.round(Y1 + (Y2-Y1)*ri) for ri in @steps)
+        
+        intensity = (clr, idx) ->
+            $blab.image.mouseData({x:Xq[idx], y:Yq[idx]}).color[clr]/255
+            
+        color = (u) =>
+             ({interval: @steps[i], intensity: intensity(u, i)} for i in [0...@steps.length])
+        
+        data =
+            red: color("r")
+            blue: color("b")
+            green: color("g")
+        
+        $blab.plot.update(data)
+        
+        @computing = false
+        console.log "...DONE"
 
     model_text = (p) ->
         """
