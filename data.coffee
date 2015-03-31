@@ -4,7 +4,7 @@
 pix = $blab.image.getPixels() #;
 
 # brightness change
-del = 60 
+del = 0 
 
 # brighten filter
 brighten = (n) ->

@@ -1,3 +1,4 @@
+
 class d3Object
 
     constructor: (id) ->
@@ -11,46 +12,23 @@ class d3Object
     initAxes: ->
 
         
-class Fig
+class $blab.Plot extends d3Object
 
-    @margin = {top: 50, right: 50, bottom: 50, left: 50}
-    @width = 612 - @margin.left - @margin.right
-    @height = 612 - @margin.top - @margin.bottom
+    constructor: (@w, @h) ->
 
-    # x <-> pixels
-    @x2X = d3.scale.linear()
-        .domain([0, 1])
-        .range([0, @width])
-    @X2x = @x2X.invert
-
-    # y <-> pixels
-    @y2Y = d3.scale.linear()
-        .domain([0, 1])
-        .range([@height, 0])
-    @Y2y = @y2Y.invert
-
-class Plot extends d3Object
-
-    w = Fig.width
-    W = Fig.width + Fig.margin.left + Fig.margin.right
-    h = Fig.height
-    H = Fig.height + Fig.margin.top + Fig.margin.bottom
-    
-    constructor: ->
-        
         super "plot"
 
-        @obj.attr('width', W).attr('height', H)
+        @obj.attr('width', @w).attr('height', @h)
 
         @plot = @obj.append('g')
-            .attr("transform", "translate( #{Fig.margin.left}, #{Fig.margin.top})")
-            .attr('width', w)
-            .attr('height', h)
+            .attr("transform", "translate( #{0}, #{0})")
+            .attr('width', @w)
+            .attr('height', @h)
 
         @plot.append("g")
             .attr("id","x-axis")
             .attr("class", "x axis")
-            .attr("transform", "translate(0, #{h})")
+            .attr("transform", "translate(0, #{@h})")
             .call(@xAxis)
 
         @plot.append("g")
@@ -59,37 +37,25 @@ class Plot extends d3Object
             .attr("transform", "translate(0, 0)")
             .call(@yAxis)
 
-        ###
-
         @plot.selectAll("line.horizontalGrid")
-            .data(Fig.T2px.ticks(4))
+            .data(@y2Y.ticks(9))
             .enter()
             .append("line")
             .attr("class", "horizontalGrid")
             .attr("x1", 0)
-            .attr("x2", w)
-            .attr("y1", (d) -> Fig.T2px d)
-            .attr("y2", (d) -> Fig.T2px d)
-            .attr("fill", "none")
-            .attr("shape-rendering", "auto")
-            .attr("stroke", "grey")
-            .attr("stroke-width", "1px")
-            .attr("opacity", 0.2)
+            .attr("x2", @w)
+            .attr("y1", (d) => @y2Y d)
+            .attr("y2", (d) => @y2Y d)
 
         @plot.selectAll("line.verticalGrid")
-            .data(Fig.d2px.ticks(4))
+            .data(@x2X.ticks(9))
             .enter()
             .append("line")
             .attr("class", "verticalGrid")
             .attr("y1", 0)
-            .attr("y2", h)
-            .attr("x1", (d) -> Fig.d2px d)
-            .attr("x2", (d) -> Fig.d2px d)
-            .attr("fill", "none")
-            .attr("shape-rendering", "auto")
-            .attr("stroke", "grey")
-            .attr("stroke-width", "1px")
-            .attr("opacity", 0.2)
+            .attr("y2", @h)
+            .attr("x1", (d) => @x2X d)
+            .attr("x2", (d) => @x2X d)
 
         @plot.append("text")
             .attr("class", "y label")
@@ -97,81 +63,142 @@ class Plot extends d3Object
             .attr("dy", -60)
             .attr("dx", -90)
             .attr("transform", "rotate(-90)")
-            .text("Temperature (deg. K)")
+            .text("Intensity")
 
         @plot.append("text")
             .attr("class", "x label")
             .attr("text-anchor", "end")
-            .attr("dy", h+50)
+            .attr("dy", @h+50)
             .attr("dx", 220)
-            .text("Depth (m)")
+            .text("Distance (?)")
 
-        ###
+        @line = d3.svg.line()
+            .x((d) => @x2X d.interval)
+            .y((d) =>  @y2Y d.intensity)
 
     update: (data) ->
+        console.log "update!!!"
+        @plotLine = (u) =>
+            @plot.append("path")
+                .attr("class", "line")
+                .attr("d", @line data[u])
+                .attr("stroke-width", 2)
+                .attr("stroke", u)
 
-        circle = @plot.selectAll("circle.marker")
-            .data(data)
-
-        circle.exit().remove()
-
-        circle
-            .enter()
-            .append("circle")
-            .attr("class", "marker")
-            .attr("r", "5")
-            .attr("fill", "none")
-            .attr("shape-rendering", "crispEdges")
-            .attr("stroke", "black")
-            .attr("stroke-width", "1px")
-
-        circle
-            .attr("cx", (d) -> Fig.x2X d[0])
-            .attr("cy", (d) -> Fig.y2Y d[1])
+        @plot.selectAll("path").remove()
+        ["red", "blue", "green"].forEach(@plotLine)
 
     initAxes: ->
 
+        # x <-> pixels
+        @x2X = d3.scale.linear()
+            .domain([0, 1])
+            .range([0, @w])
+        @X2x = @x2X.invert
+
+        # y <-> pixels
+        @y2Y = d3.scale.linear()
+            .domain([0, 1])
+            .range([@h, 0])
+        @Y2y = @y2Y.invert
+        
         @xAxis = d3.svg.axis()
-            .scale(Fig.x2X)
+            .scale(@x2X)
             .orient("bottom")
             .ticks(6)
 
         @yAxis = d3.svg.axis()
-            .scale(Fig.y2Y)
+            .scale(@y2Y)
             .orient("left")
 
-class Guide extends d3Object
+class $blab.Guide extends d3Object
 
     r = 10 # circle radius
     
-    constructor: ()->
-        
+    constructor: (@w, @h)->
+
         super "guide"
 
         # housekeeping
         @obj.on("click", null)  # Clear any previous event handlers.
         d3.behavior.drag().on("drag", null)  # Clear any previous event handlers.
 
-        @obj.attr('width', W)
-            .attr('height', H)
+        @obj.attr('width', @w).attr('height', @h)
 
         @region = @obj.append('g')
-            .attr("transform", "translate( #{Fig.margin.left}, #{Fig.margin.top})")
-            .attr('width', w)
-            .attr('height', h)
+            .attr("transform", "translate( #{0}, #{0})")
+            .attr('width', @w)
+            .attr('height', @h)
 
-        x1 = 1.5
-        x2 = 4
-        y1 = 220
-        y2 = 228
+        @region.append("g")
+            .attr("id","x-axis")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0, #{@h})")
+            .call(@xAxis)
+
+        @region.append("g")
+            .attr("id","y-axis")
+            .attr("class", "y axis")
+            .attr("transform", "translate(0, 0)")
+            .call(@yAxis)
+
+        @region.append("text")
+            .attr("class", "y label")
+            .attr("text-anchor", "end")
+            .attr("dy", -60)
+            .attr("dx", -90)
+            .attr("transform", "rotate(-90)")
+            .text("ylabel")
+
+        @region.append("text")
+            .attr("class", "x label")
+            .attr("text-anchor", "end")
+            .attr("dy", @h+50)
+            .attr("dx", 220)
+            .text("xlabel")
+
+        @region.selectAll("line.horizontalGrid")
+            .data(@y2Y.ticks(9))
+            .enter()
+            .append("line")
+            .attr("class", "horizontalGrid")
+            .attr("x1", 0)
+            .attr("x2", @w)
+            .attr("y1", (d) => @y2Y d)
+            .attr("y2", (d) => @y2Y d)
+            .attr("fill", "none")
+            .attr("shape-rendering", "auto")
+            .attr("stroke", "grey")
+            .attr("stroke-width", "1px")
+            .attr("opacity", 0.4)
+
+        @region.selectAll("line.verticalGrid")
+            .data(@x2X.ticks(9))
+            .enter()
+            .append("line")
+            .attr("class", "verticalGrid")
+            .attr("y1", 0)
+            .attr("y2", @h)
+            .attr("x1", (d) => @x2X d)
+            .attr("x2", (d) => @x2X d)
+            .attr("fill", "none")
+            .attr("shape-rendering", "auto")
+            .attr("stroke", "grey")
+            .attr("stroke-width", "1px")
+            .attr("opacity", 0.2)
+
+        x1 = 0.05
+        x2 = 0.95
+        y1 = 0.05
+        y2 = 0.95
 
         @m1 = @marker()
-            .attr("cx", Fig.x2X x1)
-            .attr("cy", Fig.y2Y y1)
+            .attr("cx", @x2X x1)
+            .attr("cy", @y2Y y1)
 
         @m2 = @marker()
-            .attr("cx", Fig.x2X x2)
-            .attr("cy", Fig.y2Y y2)
+            .attr("cx", @x2X x2)
+            .attr("cy", @y2Y y2)
 
         @line = @region.append("line")
             .attr("x1", @m1.attr("cx"))
@@ -180,12 +207,34 @@ class Guide extends d3Object
             .attr("y2", @m2.attr("cy"))
             .attr("class", "modelline")
 
-        slope = (y2-y1)/(x2-x1)
-        inter = y1-slope*x1
-        d3.select("#equation").html(model_text([inter, slope]))
+        #slope = (y2-y1)/(x2-x1)
+        #inter = y1-slope*x1
+        #d3.select("#equation").html(model_text([inter, slope]))
 
     initAxes: ->
 
+        # x <-> pixels
+        @x2X = d3.scale.linear()
+            .domain([0, 1])
+            .range([0, @w])
+        @X2x = @x2X.invert
+
+        # y <-> pixels
+        @y2Y = d3.scale.linear()
+            .domain([0, 1])
+            .range([@h, 0])
+        @Y2y = @y2Y.invert
+        
+        
+        @xAxis = d3.svg.axis()
+            .scale(@x2X)
+            .orient("bottom")
+            .ticks(6)
+
+        @yAxis = d3.svg.axis()
+            .scale(@y2Y)
+            .orient("left")
+        
     marker: () ->
 
         m = @region.append('circle')
@@ -204,37 +253,53 @@ class Guide extends d3Object
     dragMarker: (marker, x, y) ->
 
         x=0 if x<0
-        x=w if x>w
+        x=@w if x>@w
         y=0 if y<0
-        y=h if y>h
+        y=@h if y>@h
 
         marker.attr("cx", x)
         marker.attr("cy", y)
 
-        X1 = @m1.attr("cx")
-        Y1 = @m1.attr("cy")
-        X2 = @m2.attr("cx")
-        Y2 = @m2.attr("cy")
-                
+        X1 = +@m1.attr("cx")
+        Y1 = +@m1.attr("cy")
+        X2 = +@m2.attr("cx")
+        Y2 = +@m2.attr("cy")
+
         @line.attr("x1", X1)
             .attr("y1", Y1)
             .attr("x2", X2)
             .attr("y2", Y2)
 
-        y1 = Fig.Y2y Y1
-        y2 = Fig.Y2y Y2
-        x1 = Fig.X2x X1
-        x2 = Fig.X2x X2
+        y1 = @Y2y Y1
+        y2 = @Y2y Y2
+        x1 = @X2x X1
+        x2 = @X2x X2
 
-        slope = (y2-y1)/(x2-x1)
-        inter = y1-slope*x1
-        d3.select("#equation").html(model_text([inter, slope]))
+        #slope = (y2-y1)/(x2-x1)
+        #inter = y1-slope*x1
+        #d3.select("#equation").html(model_text([inter, slope]))
+
+        r = [0..100]/100
+        Xq = (Math.round u for u in (X1 + (X2-X1)*r))
+        Yq = (Math.round u for u in (Y1 + (Y2-Y1)*r))
+
+        intensity = (clr, idx) ->
+            $blab.image.mouseData({x:Xq[idx], y:Yq[idx]}).color[clr]/255
+
+        color = (u) ->
+             ({interval:r[i], intensity:intensity(u, i)} for i in [0...r.length])
+
+        data =
+            red: color("r")
+            blue: color("b")
+            green: color("g")
+
+        $blab.plot.update(data)
+
 
     model_text = (p) ->
         """
         <table class='func'>
-        <tr><td>Model: a =<td/><td>#{p[1].toFixed(2)} deg.K/m,<td/><td>b =<td/><td>#{p[0].toFixed(2)} deg.K<td/><tr/>
+        <tr><td>Model: a =<td/><td>#{p[1].toFixed(2)} deg.K/m,<td/><td>b =<td/><td>#{p[0].toFixed(2)} deg.K<td/><tr>
         </table>
         """
-
-new Plot

@@ -69,9 +69,11 @@ class Image
         
         @context.drawImage(@image[0], 0, 0, @w, @h)
         
-        @canvas.on "mousemove", (e) => @mousemove?(@mouseData(@mouseCoords(e)))
+        #@canvas.on "mousemove", (e) => @mousemove?(@mouseData(@mouseCoords(e)))
+        $("#guide").on "mousemove", (e) => @mousemove?(@mouseData(@mouseCoords(e)))
         
-        @canvas.on "click", (e) => @click?(@mouseData(@mouseCoords(e)))
+        #@canvas.on "click", (e) => @click?(@mouseData(@mouseCoords(e)))
+        $("#guide").on "click", (e) => @click?(@mouseData(@mouseCoords(e)))
         
         # Initial postion--to handle case in which mouse hasn't moved since dropping image.
         @imageContainer.css(cursor: "crosshair")  # Cursor before mouse moves after drop.
@@ -123,10 +125,14 @@ class Demo
         mouseenter = => @current.show()
         mouseleave = => @current.hide()
         image = new Image {@container, loaded, mousemove, click, mouseenter, mouseleave}
-        image.set("./Lenna.png")
+        image.set("SMPTE_Color_Bars.png")
 
     loaded: (image) ->
         $blab.image = image
+        guide = new $blab.Guide image.w, image.h
+        $blab.plot = new $blab.Plot image.w, image.h        
+
+        #guide.dragMarker(guide.m1, 0, 0)
         
     showData: (el, txt, data) ->
         pos = data.pos
@@ -142,5 +148,5 @@ class Demo
         
     rgbToHex: (r, g, b) -> ((r << 16) | (g << 8) | b).toString(16)
     
-$blab.demo = new Demo
+new Demo
 
